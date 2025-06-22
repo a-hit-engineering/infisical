@@ -14,6 +14,16 @@ services:
       - "8080"
     environment:
       - NODE_ENV=production
+      - TLS_REJECT_UNAUTHORIZED=false
+      - SMTP_TLS_REJECT_UNAUTHORIZED=false
+      - REDIS_TLS_REJECT_UNAUTHORIZED=false
+      - REDIS_TLS_ENABLED=true
+      - TELEMETRY_ENABLED=false
+      # 如果您有Redis CA证书，请取消注释下面这行并替换为实际的base64编码证书
+      # - REDIS_TLS_CA_CERT=your-base64-encoded-ca-cert-here
+      # 如果需要指定SNI服务器名，请取消注释下面这行并替换为实际的服务器名
+      # - REDIS_TLS_SNI_SERVERNAME=your-redis-server-hostname
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
     networks:
       - infisical
       - traefik

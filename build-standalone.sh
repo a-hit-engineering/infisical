@@ -32,8 +32,9 @@ BUILD_ARGS=(
 )
 
 # 构建Docker镜像
-echo "正在构建Docker镜像..."
+echo "正在构建Docker镜像 (amd64架构)..."
 docker build \
+    --platform linux/amd64 \
     "${BUILD_ARGS[@]}" \
     -f Dockerfile.standalone-infisical \
     -t "${FULL_IMAGE_NAME}" \

@@ -12,9 +12,13 @@ export type TRedisConfigKeys = Partial<{
   REDIS_TLS_SNI_SERVERNAME: string;
   REDIS_TLS_CA_CERT: string;
   TLS_REJECT_UNAUTHORIZED: boolean;
+  NODE_ENV: string;
+  isDevelopmentMode: boolean;
 }>;
 
 export const buildRedisFromConfig = (cfg: TRedisConfigKeys) => {
+  const isDevelopment = cfg.NODE_ENV === "development" || cfg.isDevelopmentMode;
+
   if (cfg.REDIS_URL) {
     const redisOptions: any = {
       maxRetriesPerRequest: null
@@ -22,7 +26,9 @@ export const buildRedisFromConfig = (cfg: TRedisConfigKeys) => {
 
     if (cfg.REDIS_TLS_ENABLED || cfg.REDIS_URL.startsWith("rediss://")) {
       const tlsOptions: any = {
-        rejectUnauthorized: cfg.REDIS_TLS_REJECT_UNAUTHORIZED !== false
+        rejectUnauthorized: isDevelopment
+          ? cfg.REDIS_TLS_REJECT_UNAUTHORIZED !== false
+          : cfg.REDIS_TLS_REJECT_UNAUTHORIZED !== false
       };
 
       if (cfg.REDIS_TLS_SNI_SERVERNAME) {
@@ -37,9 +43,11 @@ export const buildRedisFromConfig = (cfg: TRedisConfigKeys) => {
         }
       }
 
-      if (cfg.TLS_REJECT_UNAUTHORIZED === false) {
+      if (isDevelopment && cfg.TLS_REJECT_UNAUTHORIZED === false) {
         tlsOptions.rejectUnauthorized = false;
         console.log("🔓 Redis TLS certificate verification disabled for development");
+      } else if (!isDevelopment && cfg.TLS_REJECT_UNAUTHORIZED === false) {
+        console.warn("⚠️  TLS_REJECT_UNAUTHORIZED=false ignored in production for security");
       }
 
       redisOptions.tls = tlsOptions;
@@ -59,7 +67,9 @@ export const buildRedisFromConfig = (cfg: TRedisConfigKeys) => {
 
   if (cfg.REDIS_TLS_ENABLED && cfg.REDIS_SENTINEL_ENABLE_TLS) {
     const tlsOptions: any = {
-      rejectUnauthorized: cfg.REDIS_TLS_REJECT_UNAUTHORIZED !== false
+      rejectUnauthorized: isDevelopment
+        ? cfg.REDIS_TLS_REJECT_UNAUTHORIZED !== false
+        : cfg.REDIS_TLS_REJECT_UNAUTHORIZED !== false
     };
 
     if (cfg.REDIS_TLS_SNI_SERVERNAME) {
@@ -74,7 +84,7 @@ export const buildRedisFromConfig = (cfg: TRedisConfigKeys) => {
       }
     }
 
-    if (cfg.TLS_REJECT_UNAUTHORIZED === false) {
+    if (isDevelopment && cfg.TLS_REJECT_UNAUTHORIZED === false) {
       tlsOptions.rejectUnauthorized = false;
     }
 

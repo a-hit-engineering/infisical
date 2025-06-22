@@ -5,21 +5,25 @@ services:
     container_name: infisical-backend
     restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+
     image: infisical/infisical:latest-postgres
+    platform: linux/amd64
     pull_policy: always
     env_file: .env
-    ports:
-      - 80:8080
+    expose:
+      - "8080"
     environment:
       - NODE_ENV=production
-      # OrbStack 自签名证书处理
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
     networks:
       - infisical
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.infisical.rule=Host(`your-domain.com`)"
+      - "traefik.http.routers.infisical.entrypoints=websecure"
+      - "traefik.http.routers.infisical.tls.certresolver=letsencrypt"
+      - "traefik.http.services.infisical.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik"
 
   redis:
     image: redis
@@ -28,8 +32,8 @@ services:
     restart: always
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - 6379:6379
+    expose:
+      - "6379"
     networks:
       - infisical
     volumes:
@@ -56,3 +60,6 @@ volumes:
 
 networks:
   infisical:
+    driver: bridge
+  traefik:
+    external: true

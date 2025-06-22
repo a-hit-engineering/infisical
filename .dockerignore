@@ -1,10 +1,83 @@
-backend/node_modules
-frontend/node_modules
-backend/frontend-build
-**/node_modules
-**/.next
-.dockerignore
+# Git files
 .git
-README.md
-.dockerignore
-**/Dockerfile
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README*
+docs/
+company/
+
+# Development files
+.env*
+.vscode/
+.idea/
+*.log
+tmp/
+temp/
+
+# Node modules (will be installed during build)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend development files
+frontend/.next/
+frontend/dist/
+frontend/out/
+frontend/.cache/
+
+# Backend development files
+backend/dist/
+backend/build/
+backend/.nyc_output/
+backend/coverage/
+
+# Testing
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+e2e-test/
+
+# Other build artifacts
+*.tgz
+*.tar.gz
+
+# Helm charts and k8s
+helm-charts/
+k8-operator/
+cloudformation/
+
+# CLI and other tools
+cli/
+sink/
+
+# Images and logos
+img/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker files (except the one we're building)
+Dockerfile*
+!Dockerfile.standalone-infisical
+docker-compose*.yml
+analyze-image-layers.sh
+build-*.sh
+
+# Misc
+.DS_Store
+Thumbs.db

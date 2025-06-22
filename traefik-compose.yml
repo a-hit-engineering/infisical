@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik dashboard (可选)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - traefik-certificates:/certificates
+    networks:
+      - traefik
+    labels:
+      # Dashboard配置 (可选)
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.your-domain.com`)"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+volumes:
+  traefik-certificates:
+
+networks:
+  traefik:
+    external: true

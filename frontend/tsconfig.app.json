@@ -8,9 +8,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@app/*": [
-        "./src/*"
-      ]
+      "@app/*": ["./src/*"]
     },
 
     /* Bundler mode */
@@ -28,8 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-  ],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }

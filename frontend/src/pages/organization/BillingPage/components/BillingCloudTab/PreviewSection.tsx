@@ -1,8 +1,4 @@
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import { OrgPermissionCan } from "@app/components/permissions";
-import { Button } from "@app/components/v2";
 import {
   OrgPermissionBillingActions,
   OrgPermissionSubjects,
@@ -10,11 +6,7 @@ import {
   useSubscription
 } from "@app/context";
 import { isInfisicalCloud } from "@app/helpers/platform";
-import {
-  useCreateCustomerPortalSession,
-  useGetOrgPlanBillingInfo,
-  useGetOrgTrialUrl
-} from "@app/hooks/api";
+import { useCreateCustomerPortalSession, useGetOrgPlanBillingInfo } from "@app/hooks/api";
 import { usePopUp } from "@app/hooks/usePopUp";
 
 import { ManagePlansModal } from "./ManagePlansModal";
@@ -23,10 +15,9 @@ export const PreviewSection = () => {
   const { currentOrg } = useOrganization();
   const { subscription } = useSubscription();
   const { data, isPending } = useGetOrgPlanBillingInfo(currentOrg?.id ?? "");
-  const getOrgTrialUrl = useGetOrgTrialUrl();
   const createCustomerPortalSession = useCreateCustomerPortalSession();
 
-  const { popUp, handlePopUpOpen, handlePopUpToggle } = usePopUp(["managePlan"] as const);
+  const { popUp, handlePopUpToggle } = usePopUp(["managePlan"] as const);
 
   const formatAmount = (amount: number) => {
     const formattedTotal = (Math.floor(amount) / 100).toLocaleString("en-US", {
@@ -54,101 +45,8 @@ export const PreviewSection = () => {
     return slug.replace(/(\b[a-z])/g, (match) => match.toUpperCase()).replace(/-/g, " ");
   }
 
-  const handleUpgradeBtnClick = async () => {
-    try {
-      if (!subscription || !currentOrg) return;
-
-      if (!isInfisicalCloud()) {
-        window.open("https://infisical.com/pricing", "_blank");
-        return;
-      }
-
-      if (!subscription.has_used_trial) {
-        // direct user to start pro trial
-        const url = await getOrgTrialUrl.mutateAsync({
-          orgId: currentOrg.id,
-          success_url: window.location.href
-        });
-
-        window.location.href = url;
-      } else {
-        // open compare plans modal
-        handlePopUpOpen("managePlan");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const getUpgradePlanLabel = () => {
-    if (!isInfisicalCloud()) {
-      return (
-        <div>
-          Go to Pricing
-          <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="mb-[0.06rem] ml-1 text-xs" />
-        </div>
-      );
-    }
-
-    return !subscription.has_used_trial ? "Start Pro Free Trial" : "Upgrade Plan";
-  };
-
   return (
     <div>
-      {subscription &&
-        subscription?.slug !== "enterprise" &&
-        subscription?.slug !== "pro" &&
-        subscription?.slug !== "pro-annual" && (
-          <div className="flex flex-row space-x-6">
-            <div className="mb-6 flex flex-1 items-center rounded-lg border border-primary/40 bg-primary/10 p-4">
-              <div className="flex-1">
-                <h2 className="text-xl font-medium text-mineshaft-100">
-                  Unleash the full power of{" "}
-                  <span className="bg-gradient-to-r from-primary-500 to-yellow bg-clip-text font-semibold text-transparent">
-                    Infisical
-                  </span>
-                </h2>
-                <p className="mt-4 text-gray-400">
-                  Get unlimited members, projects, RBAC, smart alerts, and so much more.
-                </p>
-              </div>
-              <OrgPermissionCan
-                I={OrgPermissionBillingActions.ManageBilling}
-                a={OrgPermissionSubjects.Billing}
-              >
-                {(isAllowed) => (
-                  <Button
-                    onClick={() => handleUpgradeBtnClick()}
-                    color="mineshaft"
-                    isDisabled={!isAllowed}
-                  >
-                    {getUpgradePlanLabel()}
-                  </Button>
-                )}
-              </OrgPermissionCan>
-            </div>
-            <div className="mb-6 flex w-full max-w-[12rem] flex-col items-center rounded-lg border border-mineshaft-600 bg-mineshaft-800 p-4">
-              <div className="mb-4 flex w-full justify-center font-semibold text-mineshaft-200">
-                Want to learn more?{" "}
-              </div>
-              <div className="flex w-full justify-center">
-                <a
-                  href="https://infisical.com/schedule-demo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="cursor-pointer rounded-full border border-mineshaft-500 bg-mineshaft-600 px-4 py-2 duration-200 hover:border-primary/40 hover:bg-primary/10">
-                    Book a demo{" "}
-                    <FontAwesomeIcon
-                      icon={faArrowUpRightFromSquare}
-                      className="mb-[0.06rem] ml-1 text-xs"
-                    />
-                  </span>
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
       {!isPending && subscription && data && (
         <div className="mb-6 flex">
           <div className="mr-4 flex-1 rounded-lg border border-mineshaft-600 bg-mineshaft-900 p-4">

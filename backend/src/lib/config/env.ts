@@ -45,6 +45,13 @@ const envSchema = z
     REDIS_SENTINEL_ENABLE_TLS: zodStrBool.optional().describe("Whether to use TLS/SSL for Redis Sentinel connection"),
     REDIS_SENTINEL_USERNAME: zpStr(z.string().optional().describe("Authentication username for Redis Sentinel")),
     REDIS_SENTINEL_PASSWORD: zpStr(z.string().optional().describe("Authentication password for Redis Sentinel")),
+    // Redis TLS configuration
+    REDIS_TLS_ENABLED: zodStrBool.optional().describe("Whether to use TLS/SSL for Redis connection"),
+    REDIS_TLS_REJECT_UNAUTHORIZED: zodStrBool
+      .default("true")
+      .describe("Whether to reject unauthorized Redis TLS certificates"),
+    REDIS_TLS_SNI_SERVERNAME: zpStr(z.string().optional().describe("SNI server name for Redis TLS connection")),
+    REDIS_TLS_CA_CERT: zpStr(z.string().optional().describe("Base64 encoded CA certificate for Redis TLS")),
     HOST: zpStr(z.string().default("localhost")),
     DB_CONNECTION_URI: zpStr(z.string().describe("Postgres database connection string")).default(
       `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
@@ -79,6 +86,8 @@ const envSchema = z
     SMTP_IGNORE_TLS: zodStrBool.default("false"),
     SMTP_REQUIRE_TLS: zodStrBool.default("true"),
     SMTP_TLS_REJECT_UNAUTHORIZED: zodStrBool.default("true"),
+    // Global TLS configuration for development environments (like OrbStack)
+    TLS_REJECT_UNAUTHORIZED: zodStrBool.default("true"),
     SMTP_PORT: z.coerce.number().default(587),
     SMTP_USERNAME: zpStr(z.string().optional()),
     SMTP_PASSWORD: zpStr(z.string().optional()),
@@ -286,7 +295,9 @@ const envSchema = z
     ),
 
     /* INTERNAL ----------------------------------------------------------------------------- */
-    INTERNAL_REGION: zpStr(z.enum(["us", "eu"]).optional())
+    INTERNAL_REGION: zpStr(z.enum(["us", "eu"]).optional()),
+    // Global TLS configuration for development environments (like OrbStack)
+    TLS_REJECT_UNAUTHORIZED: zodStrBool.default("true")
   })
   // To ensure that basic encryption is always possible.
   .refine(

@@ -7,7 +7,7 @@ import { initializeHsmModule } from "@app/ee/services/hsm/hsm-fns";
 import { runMigrations } from "./auto-start-migrations";
 import { initAuditLogDbConnection, initDbConnection } from "./db";
 import { keyStoreFactory } from "./keystore/keystore";
-import { formatSmtpConfig, initEnvConfig } from "./lib/config/env";
+import { formatSmtpConfig, initEnvConfig, getConfig } from "./lib/config/env";
 import { buildRedisFromConfig } from "./lib/config/redis";
 import { removeTemporaryBaseDirectory } from "./lib/files";
 import { initLogger } from "./lib/logger";
@@ -17,6 +17,13 @@ import { bootstrapCheck } from "./server/boot-strap-check";
 import { smtpServiceFactory } from "./services/smtp/smtp-service";
 
 dotenv.config();
+
+// Handle OrbStack self-signed certificates in development
+const config = getConfig();
+if (config.isDevelopmentMode && config.TLS_REJECT_UNAUTHORIZED === false) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  console.log("🔓 TLS certificate verification disabled for development (OrbStack compatibility)");
+}
 
 const run = async () => {
   const logger = initLogger();
